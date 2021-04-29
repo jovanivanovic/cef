@@ -112,9 +112,8 @@ void RegisterCustomSchemes(CefRawPtr<CefSchemeRegistrar> registrar) {
 
   // Bring in the media access tests.
   extern void RegisterMediaCustomSchemes(
-      CefRawPtr<CefSchemeRegistrar> registrar,
-      std::vector<CefString> & cookiable_schemes);
-  RegisterMediaCustomSchemes(registrar, cookiable_schemes);
+      CefRawPtr<CefSchemeRegistrar> registrar);
+  RegisterMediaCustomSchemes(registrar);
 }
 
 void RegisterCookieableSchemes(std::vector<std::string>& cookieable_schemes) {

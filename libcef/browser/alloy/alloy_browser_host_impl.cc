@@ -841,7 +841,7 @@ void AlloyBrowserHostImpl::RunFileChooser(
   file_dialog_manager_->RunFileChooser(params, std::move(callback));
 }
 
-void CefBrowserHostImpl::RequestToLockMouse(content::WebContents* web_contents,
+void AlloyBrowserHostImpl::RequestToLockMouse(content::WebContents* web_contents,
                               bool user_gesture,
                               bool last_unlocked_by_target)
 {
@@ -855,7 +855,7 @@ void CefBrowserHostImpl::RequestToLockMouse(content::WebContents* web_contents,
           blink::mojom::PointerLockResult::kSuccess);
 }
 
-void CefBrowserHostImpl::LostMouseLock() {}
+void AlloyBrowserHostImpl::LostMouseLock() {}
 
 void AlloyBrowserHostImpl::EnterFullscreenModeForTab(
     content::RenderFrameHost* requesting_frame,
