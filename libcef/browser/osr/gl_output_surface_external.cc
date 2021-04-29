@@ -35,7 +35,7 @@ class ExternalImageData {
         gfx::BufferUsage::SCANOUT, gfx::BufferFormat::RGBA_8888, capabilities);
   }
   ~ExternalImageData() {
-    if (bound_ && fbo_) {
+    if (bound_) {
       UnbindTexture();
     }
     if (texture_id_) {
@@ -72,6 +72,8 @@ class ExternalImageData {
     }
 
     gl_->GenTextures(1, &texture_id_);
+    //gl_->SetColorSpaceMetadataCHROMIUM(
+    //    texture_id_, reinterpret_cast<GLcolorSpace>(&color_space_));
   }
 
   gfx::GpuMemoryBufferHandle GetHandle() {
@@ -81,13 +83,13 @@ class ExternalImageData {
     return buffer_->CloneHandle();
   }
 
-  void BindTexture(uint32_t fbo) {
+  void BindTexture() {
     if (bound_) {
-      CHECK_EQ(fbo_, fbo);
+      //CHECK_EQ(fbo_, fbo);
       // Multi-pass rendering like HTMLCanvasElement with blur-filter triggers
       // multiple calls to GLOutputSurfaceExternal::BindFramebuffer. The only
       // thing we need to do in this case is to make sure the FBO is bound.
-      gl_->BindFramebuffer(GL_FRAMEBUFFER, fbo);
+      //gl_->BindFramebuffer(GL_FRAMEBUFFER, fbo);
       return;
     }
 
@@ -100,16 +102,16 @@ class ExternalImageData {
     gl_->SetColorSpaceMetadataCHROMIUM(
         texture_id_, reinterpret_cast<GLcolorSpace>(&color_space_));
 
-    gl_->BindFramebuffer(GL_FRAMEBUFFER, fbo);
-    gl_->FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                              texture_target_, texture_id_, 0);
+    //gl_->BindFramebuffer(GL_FRAMEBUFFER, fbo);
+    //gl_->FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+    //                          texture_target_, texture_id_, 0);
 
-    fbo_ = fbo;
+    //fbo_ = fbo;
     bound_ = true;
   }
 
   void UnbindTexture() {
-    if (!texture_id_ || !image_id_ || !fbo_ || !bound_)
+    if (!texture_id_ || !image_id_ || !bound_)
       return;
 
     gl_->BindTexture(texture_target_, texture_id_);
@@ -117,7 +119,7 @@ class ExternalImageData {
 
     gl_->Flush();
     bound_ = false;
-    fbo_ = 0;
+    //fbo_ = 0;
   }
 
   gpu::gles2::GLES2Interface* gl_;
@@ -127,7 +129,7 @@ class ExternalImageData {
   uint32_t texture_target_ = 0;
   uint32_t texture_id_ = 0;
   uint32_t image_id_ = 0;
-  uint32_t fbo_ = 0;
+  //uint32_t fbo_ = 0;
   bool bound_ = false;
   std::unique_ptr<gfx::GpuMemoryBuffer> buffer_;
 };
@@ -136,14 +138,32 @@ GLOutputSurfaceExternal::GLOutputSurfaceExternal(
     scoped_refptr<VizProcessContextProvider> context_provider,
     gpu::GpuMemoryBufferManager* gpu_memory_buffer_manager,
     mojom::ExternalRendererUpdaterPtr external_renderer_updater)
-    : GLOutputSurface(context_provider, gpu::kNullSurfaceHandle),
+    : GLOutputSurfaceOffscreen(context_provider),
       gpu_memory_buffer_manager_(gpu_memory_buffer_manager),
-      external_renderer_updater_(std::move(external_renderer_updater)) {}
+      external_renderer_updater_(std::move(external_renderer_updater)) {
+    // we don't bind the default GL framebuffer here, good luck
+	capabilities_.uses_default_gl_framebuffer = false;      
+}
 
 GLOutputSurfaceExternal::~GLOutputSurfaceExternal() {
   DiscardBackbuffer();
 }
 
+void GLOutputSurfaceExternal::ResetBuffer() {
+  const int max_texture_size =
+      context_provider_->ContextCapabilities().max_texture_size;
+  gfx::Size texture_size(std::min(size_.width(), max_texture_size),
+                         std::min(size_.height(), max_texture_size));
+
+  gpu::gles2::GLES2Interface* gl = context_provider_->ContextGL();
+
+  current_surface_ = std::make_unique<ExternalImageData>(
+      gl, context_provider_->ContextCapabilities());
+  current_surface_->Create(texture_size, color_space_,
+                           gpu_memory_buffer_manager_);
+}
+
+#if 0
 void GLOutputSurfaceExternal::EnsureBackbuffer() {
   if (size_.IsEmpty())
     return;
@@ -200,18 +220,21 @@ void GLOutputSurfaceExternal::BindFramebuffer() {
     LOG(ERROR) << "No surface available to bind";
   }
 }
+#endif
 
 void GLOutputSurfaceExternal::Reshape(const gfx::Size& size,
                                       float scale_factor,
                                       const gfx::ColorSpace& color_space,
                                       gfx::BufferFormat format,
                                       bool use_stencil) {
+  GLOutputSurfaceOffscreen::Reshape(size, scale_factor, color_space, format,
+                                    use_stencil);
   if (size_ == size && color_space_ == color_space) {
     return;
   }
   size_ = size;
   color_space_ = color_space;
-  DiscardBackbuffer();
+  ResetBuffer();
 }
 
 void GLOutputSurfaceExternal::SwapBuffers(OutputSurfaceFrame frame) {
@@ -219,8 +242,52 @@ void GLOutputSurfaceExternal::SwapBuffers(OutputSurfaceFrame frame) {
 
   gpu::gles2::GLES2Interface* gl = context_provider_->ContextGL();
 
+  if (!current_surface_) {
+    ResetBuffer();
+  }
+
+//   gl->BindFramebuffer(GL_FRAMEBUFFER, fbo_);
+//   gl->ActiveTexture(GL_TEXTURE0);
+//   gl->BindTexture(GL_TEXTURE_2D, current_surface_->texture_id_);
+//   gl->CopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, size_.width(),
+//                      size_.height(), 0);
+// 
+//   gl->BindFramebuffer(GL_FRAMEBUFFER, 0);
+//   gl->BindTexture(GL_TEXTURE_2D, 0);
+  
+      //   gl->CopyImageSubData(texture_id_, GL_TEXTURE_2D, 0, 0, 0, 0,
+//                        current_surface_->texture_id_, GL_TEXTURE_2D, 0, 0, 0, 0,
+//                        size_.width(), size_.height());
+
+  //gl->Flush();
+  //current_surface_->BindTexture();
+
+  gl->BindTexture(current_surface_->texture_target_,
+                   current_surface_->texture_id_);
+  gl->BindTexImage2DCHROMIUM(current_surface_->texture_target_,
+                              current_surface_->image_id_);
+  gl->BindTexture(current_surface_->texture_target_, 0);
+
+  gl->CopySubTextureCHROMIUM(texture_id_, 0, current_surface_->texture_target_,
+                             current_surface_->texture_id_, 0, 0, 0, 0, 0,
+                             size_.width(), size_.height(), false, false,
+                             false);
+  /*gl->BindFramebuffer(GL_FRAMEBUFFER, fbo_);
+  gl->ActiveTexture(GL_TEXTURE0);
+  //gl->ReadBuffer(GL_COLOR_ATTACHMENT0);
+  gl->BindTexture(current_surface_->texture_target_,
+                  current_surface_->texture_id_);
+  gl->CopyTexImage2D(current_surface_->texture_target_, 0, GL_RGBA, 0, 0,
+                     size_.width(), size_.height(), 0);
+
+  gl->BindFramebuffer(GL_FRAMEBUFFER, 0);
+  gl->BindTexture(current_surface_->texture_target_, 0);*/
+  //current_surface_->UnbindTexture();
+
   gl->Flush();
-  current_surface_->UnbindTexture();
+
+  //gl->Hint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
+  //gl->Hint(GL_GENERATE_MIPMAP_HINT, GL_FASTEST);
 
   gpu::SyncToken sync_token;
   gl->GenUnverifiedSyncTokenCHROMIUM(sync_token.GetData());
@@ -234,7 +301,18 @@ void GLOutputSurfaceExternal::OnSyncWaitComplete(
     std::vector<ui::LatencyInfo> latency_info) {
   gfx::GpuMemoryBufferHandle handle = current_surface_->GetHandle();
 
+  //current_surface_->UnbindTexture();
+  gpu::gles2::GLES2Interface* gl = context_provider_->ContextGL();
+  gl->BindTexture(current_surface_->texture_target_,
+                  current_surface_->texture_id_);
+  gl->ReleaseTexImage2DCHROMIUM(current_surface_->texture_target_,
+                                current_surface_->image_id_);
+
+  gl->ShallowFlushCHROMIUM();
+  
+#if 0
   in_flight_surfaces_.push_back(std::move(current_surface_));
+#endif
 
   if (handle.type != gfx::GpuMemoryBufferType::EMPTY_BUFFER) {
     external_renderer_updater_->OnAfterFlip(
@@ -249,7 +327,8 @@ void GLOutputSurfaceExternal::OnSyncWaitComplete(
 
 void GLOutputSurfaceExternal::OnAfterSwap(
     std::vector<ui::LatencyInfo> latency_info) {
-  if (in_flight_surfaces_.front()) {
+#if 0
+    if (in_flight_surfaces_.front()) {
     if (displayed_surface_) {
       available_surfaces_.push_back(std::move(displayed_surface_));
     }
@@ -259,6 +338,7 @@ void GLOutputSurfaceExternal::OnAfterSwap(
     displaying_surface_ = std::move(in_flight_surfaces_.front());
   }
   in_flight_surfaces_.pop_front();
+#endif
 
   latency_tracker()->OnGpuSwapBuffersCompleted(latency_info);
   // Swap timings are not available since for offscreen there is no Swap, just a

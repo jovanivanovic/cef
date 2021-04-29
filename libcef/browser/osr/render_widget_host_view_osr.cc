@@ -911,6 +911,8 @@ void CefRenderWidgetHostViewOSR::DidNavigate() {
 void CefRenderWidgetHostViewOSR::OnFrameComplete(
     const viz::BeginFrameAck& ack) {
   // TODO(cef): is there something we need to track with this notification?
+  pending_frame_ = false;
+  had_frame_ = true;
 }
 
 void CefRenderWidgetHostViewOSR::OnRenderFrameMetadataChangedAfterActivation(
@@ -945,6 +947,11 @@ void CefRenderWidgetHostViewOSR::OnRenderFrameMetadataChangedAfterActivation(
 
 std::unique_ptr<viz::HostDisplayClient>
 CefRenderWidgetHostViewOSR::CreateHostDisplayClient() {
+  // We should only get a new display client if the current one ceased to exist.
+  if (had_frame_) {
+    pending_frame_ = false;
+  }
+
   host_display_client_ = new CefHostDisplayClientOSR(
       this, gfx::kNullAcceleratedWidget, use_proxy_output_);
   host_display_client_->SetActive(true);
@@ -1047,6 +1054,10 @@ void CefRenderWidgetHostViewOSR::Invalidate(
 void CefRenderWidgetHostViewOSR::SendExternalBeginFrame() {
   DCHECK(external_begin_frame_enabled_);
 
+  if (pending_frame_) {
+    return;
+  }
+
   base::TimeTicks frame_time = base::TimeTicks::Now();
   base::TimeTicks deadline = base::TimeTicks();
   base::TimeDelta interval = viz::BeginFrameArgs::DefaultInterval();
@@ -1061,6 +1072,8 @@ void CefRenderWidgetHostViewOSR::SendExternalBeginFrame() {
 
   if (render_widget_host_)
     render_widget_host_->ProgressFlingIfNeeded(frame_time);
+
+  pending_frame_ = true;
 
   if (compositor_) {
     compositor_->IssueExternalBeginFrame(

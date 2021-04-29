@@ -50,6 +50,7 @@ class TestHandler : public CefClient,
                     public CefJSDialogHandler,
                     public CefLifeSpanHandler,
                     public CefLoadHandler,
+                    public CefMediaAccessHandler,
                     public CefRequestHandler,
                     public CefResourceRequestHandler {
  public:
@@ -147,6 +148,9 @@ class TestHandler : public CefClient,
   CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
   CefRefPtr<CefLoadHandler> GetLoadHandler() override { return this; }
   CefRefPtr<CefRequestHandler> GetRequestHandler() override { return this; }
+  CefRefPtr<CefMediaAccessHandler> GetMediaAccessHandler() override {
+    return this;
+  }
 
   // CefDownloadHandler methods
   void OnBeforeDownload(
@@ -176,6 +180,16 @@ class TestHandler : public CefClient,
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request) override;
+
+  // CefMediaAccessHandler methods
+  bool OnRequestMediaAccessPermission(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      const CefString& requesting_url,
+      int32_t requested_permissions,
+      CefRefPtr<CefMediaAccessCallback> callback) override {
+    return false;
+  }
 
   void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
                                  TerminationStatus status) override;

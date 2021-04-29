@@ -61,6 +61,7 @@ class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
   CefRefPtr<CefFrame> GetFocusedFrame() override;
   CefRefPtr<CefFrame> GetFrame(int64 identifier) override;
   CefRefPtr<CefFrame> GetFrame(const CefString& name) override;
+  CefRefPtr<CefFrame> GetFrame(int render_process_id, int render_routing_id) override;
   size_t GetFrameCount() override;
   void GetFrameIdentifiers(std::vector<int64>& identifiers) override;
   void GetFrameNames(std::vector<CefString>& names) override;

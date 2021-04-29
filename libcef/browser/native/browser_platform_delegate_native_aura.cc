@@ -172,7 +172,7 @@ ui::MouseWheelEvent CefBrowserPlatformDelegateNativeAura::TranslateUiWheelEvent(
       TranslateUiChangedButtonFlags(mouse_event.modifiers);
 
   return ui::MouseWheelEvent(offset, location, root_location, time_stamp,
-                             (ui::EF_PRECISION_SCROLLING_DELTA | flags),
+                             (/*ui::EF_PRECISION_SCROLLING_DELTA | */flags),
                              changed_button_flags);
 }
 

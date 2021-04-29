@@ -198,6 +198,7 @@ class CefBrowserHostBase : public CefBrowserHost,
   bool IsPopup() override;
   CefRefPtr<CefFrame> GetMainFrame() override;
   CefRefPtr<CefFrame> GetFocusedFrame() override;
+  CefRefPtr<CefFrame> GetFrame(int render_process_id, int render_routing_id) override;
   CefRefPtr<CefFrame> GetFrame(int64 identifier) override;
   CefRefPtr<CefFrame> GetFrame(const CefString& name) override;
   size_t GetFrameCount() override;

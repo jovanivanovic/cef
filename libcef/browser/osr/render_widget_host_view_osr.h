@@ -381,6 +381,8 @@ class CefRenderWidgetHostViewOSR
   bool is_showing_ = false;
   bool is_destroyed_ = false;
   bool is_first_navigation_ = true;
+  bool pending_frame_ = false;
+  bool had_frame_ = false;
   gfx::Rect current_view_bounds_;
   gfx::Rect popup_position_;
   base::Lock damage_rect_lock_;

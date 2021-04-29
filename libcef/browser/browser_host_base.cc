@@ -644,6 +644,10 @@ CefRefPtr<CefFrame> CefBrowserHostBase::GetFrame(int64 identifier) {
   return browser_info_->GetFrameForId(identifier);
 }
 
+CefRefPtr<CefFrame> CefBrowserHostBase::GetFrame(int render_process_id, int render_routing_id) {
+  return browser_info_->GetFrameForRoute(render_process_id, render_routing_id);
+}
+
 CefRefPtr<CefFrame> CefBrowserHostBase::GetFrame(const CefString& name) {
   for (const auto& frame : browser_info_->GetAllFrames()) {
     if (frame->GetName() == name)

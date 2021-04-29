@@ -56,7 +56,7 @@ void CefExternalRendererUpdaterOSR::OnAfterFlip(
     const gfx::Rect& damage_rect,
     OnAfterFlipCallback callback) {
 #if defined(OS_WIN)
-  HANDLE nthandle = handle.dxgi_handle.Get();
+  HANDLE nthandle = (HANDLE)handle.dxgi_handle;
   view_->OnAcceleratedPaint(damage_rect, nthandle);
 #elif defined(OS_MACOSX)
   view_->OnAcceleratedPaint(damage_rect,
