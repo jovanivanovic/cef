@@ -646,8 +646,6 @@ if options.distribsubdir == '':
 else:
   output_dir_name = options.distribsubdir
 
-output_dir_name = output_dir_name + '_20210428'
-
 if options.minimal:
   mode = 'minimal'
   output_dir_name = output_dir_name + '_minimal'
