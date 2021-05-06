@@ -533,8 +533,9 @@ void CefDevToolsFrontend::DispatchProtocolMessage(
     content::DevToolsAgentHost* agent_host,
     base::span<const uint8_t> message) {
   if (!frontend_browser_->GetWebContents() ||
-      frontend_browser_->GetWebContents()->IsBeingDestroyed())
+      frontend_browser_->GetWebContents()->IsBeingDestroyed()) {
     return;
+  }
 
   base::StringPiece str_message(reinterpret_cast<const char*>(message.data()),
                                 message.size());
