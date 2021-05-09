@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7d80a2edec79db9cb7be6bc23a1103a9f55c66c1$
+// $hash=922b17bb3861b28aeafd81da42d4f745d9742025$
 //
 
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
@@ -370,6 +370,25 @@ void CefBrowserCToCpp::GetFrameNames(std::vector<CefString>& names) {
     transfer_string_list_contents(namesList, names);
     cef_string_list_free(namesList);
   }
+}
+
+NO_SANITIZE("cfi-icall")
+CefRefPtr<CefFrame> CefBrowserCToCpp::GetFrame(int render_process_id,
+                                               int render_routing_id) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_frame_byroute))
+    return nullptr;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_frame_t* _retval =
+      _struct->get_frame_byroute(_struct, render_process_id, render_routing_id);
+
+  // Return type: refptr_same
+  return CefFrameCToCpp::Wrap(_retval);
 }
 
 // CONSTRUCTOR - Do not edit by hand.

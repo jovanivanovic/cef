@@ -182,6 +182,12 @@ class CefBrowser : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual void GetFrameNames(std::vector<CefString>& names) = 0;
+  
+  ///
+  // Returns the frame with the specified identifier, or NULL if not found.
+  ///
+  /*--cef(capi_name=get_frame_byroute)--*/
+  virtual CefRefPtr<CefFrame> GetFrame(int render_process_id, int render_routing_id) = 0;
 };
 
 ///

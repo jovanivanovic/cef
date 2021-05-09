@@ -170,7 +170,7 @@ void OsrRenderHandlerWinD3D11::OnPaint(
     int width,
     int height) {
   // Not used with this implementation.
-  NOTREACHED();
+  //NOTREACHED();
 }
 
 void OsrRenderHandlerWinD3D11::OnAcceleratedPaint(

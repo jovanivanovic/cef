@@ -36,6 +36,7 @@ class ClientHandler : public CefClient,
                       public CefKeyboardHandler,
                       public CefLifeSpanHandler,
                       public CefLoadHandler,
+                      public CefMediaAccessHandler,
                       public CefRequestHandler,
                       public CefResourceRequestHandler {
  public:
@@ -111,6 +112,9 @@ class ClientHandler : public CefClient,
   CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE { return this; }
   CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE { return this; }
   CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE { return this; }
+  CefRefPtr<CefMediaAccessHandler> GetMediaAccessHandler() OVERRIDE {
+    return this;
+  }
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
@@ -217,6 +221,14 @@ class ClientHandler : public CefClient,
                    ErrorCode errorCode,
                    const CefString& errorText,
                    const CefString& failedUrl) OVERRIDE;
+
+  // CefMediaAccessHandler
+  bool OnRequestMediaAccessPermission(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      const CefString& requesting_url,
+      int32_t requested_permissions,
+      CefRefPtr<CefMediaAccessCallback> callback) OVERRIDE;
 
   // CefRequestHandler methods
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,

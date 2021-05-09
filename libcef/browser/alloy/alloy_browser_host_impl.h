@@ -279,6 +279,11 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
                            const gfx::Size& pref_size) override;
   void ResizeDueToAutoResize(content::WebContents* source,
                              const gfx::Size& new_size) override;
+  void RequestToLockMouse(content::WebContents* web_contents,
+                              bool user_gesture,
+                              bool last_unlocked_by_target) override;
+                              
+  void LostMouseLock() override;
   void RequestMediaAccessPermission(
       content::WebContents* web_contents,
       const content::MediaStreamRequest& request,

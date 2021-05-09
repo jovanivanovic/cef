@@ -182,6 +182,12 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(int64 identifier) {
   return GetWebFrameImpl(identifier).get();
 }
 
+CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(int render_process_id, int render_routing_id) {
+  CEF_REQUIRE_RT_RETURN(nullptr);
+
+  return nullptr;
+}
+
 CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(const CefString& name) {
   CEF_REQUIRE_RT_RETURN(nullptr);
 

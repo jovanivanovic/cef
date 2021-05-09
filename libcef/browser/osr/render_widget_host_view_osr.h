@@ -231,6 +231,7 @@ class CefRenderWidgetHostViewOSR
   void OnPaint(const gfx::Rect& damage_rect,
                const gfx::Size& pixel_size,
                const void* pixels);
+  void OnAcceleratedPaint(const gfx::Rect& damage_rect, void* shared_texture);
 
   void OnBeginFame(base::TimeTicks frame_time);
 
@@ -355,6 +356,8 @@ class CefRenderWidgetHostViewOSR
   bool sync_frame_rate_ = false;
   bool external_begin_frame_enabled_ = false;
   bool needs_external_begin_frames_ = false;
+  bool use_shared_texture_ = false;
+  bool use_proxy_output_ = false;
 
   CefHostDisplayClientOSR* host_display_client_ = nullptr;
   std::unique_ptr<CefVideoConsumerOSR> video_consumer_;
@@ -378,6 +381,8 @@ class CefRenderWidgetHostViewOSR
   bool is_showing_ = false;
   bool is_destroyed_ = false;
   bool is_first_navigation_ = true;
+  bool pending_frame_ = false;
+  bool had_frame_ = false;
   gfx::Rect current_view_bounds_;
   gfx::Rect popup_position_;
   base::Lock damage_rect_lock_;
