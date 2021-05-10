@@ -843,6 +843,7 @@ static_library("libcef_static") {
     #"libcef/common/extensions/api",
     #"libcef/common/extensions/api:api_registration",
     "libcef/common/extensions/api:extensions_features",
+    "libcef/browser/osr",
 
     # Normal build dependencies. Should be sorted alphabetically.
     "//base",
